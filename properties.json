@@ -1,0 +1,17 @@
+[
+  {"id":"BLR001","name":"PG Finder Cedar Nest","city":"Bengaluru","area":"Koramangala","pg_type":"boys","rooms":[{"type":"sharing","monthly_price":8500},{"type":"single","monthly_price":15500}]},
+  {"id":"BLR002","name":"PG Finder Maple Residency","city":"Bengaluru","area":"Koramangala","pg_type":"boys","rooms":[{"type":"sharing","monthly_price":11000},{"type":"single","monthly_price":17000}]},
+  {"id":"BLR003","name":"PG Finder Lotus House","city":"Bengaluru","area":"Koramangala","pg_type":"girls","rooms":[{"type":"sharing","monthly_price":10500},{"type":"single","monthly_price":16500}]},
+  {"id":"BLR004","name":"PG Finder Urban Commons","city":"Bengaluru","area":"Koramangala","pg_type":"co-living","rooms":[{"type":"sharing","monthly_price":11500},{"type":"single","monthly_price":18500}]},
+  {"id":"BLR005","name":"PG Finder HSR Haven","city":"Bengaluru","area":"HSR Layout","pg_type":"boys","rooms":[{"type":"sharing","monthly_price":9500},{"type":"single","monthly_price":15000}]},
+  {"id":"BLR006","name":"PG Finder Whitefield Living","city":"Bengaluru","area":"Whitefield","pg_type":"co-living","rooms":[{"type":"sharing","monthly_price":12000},{"type":"single","monthly_price":19500}]},
+  {"id":"PUN001","name":"PG Finder TechPark Stay","city":"Pune","area":"Hinjewadi","pg_type":"boys","rooms":[{"type":"sharing","monthly_price":7500},{"type":"single","monthly_price":12500}]},
+  {"id":"PUN002","name":"PG Finder Campus Commons","city":"Pune","area":"Hinjewadi","pg_type":"co-living","rooms":[{"type":"sharing","monthly_price":9800},{"type":"single","monthly_price":14500}]},
+  {"id":"PUN003","name":"PG Finder Skyview Residence","city":"Pune","area":"Viman Nagar","pg_type":"girls","rooms":[{"type":"sharing","monthly_price":10200},{"type":"single","monthly_price":16000}]},
+  {"id":"PUN004","name":"PG Finder Kharadi Courts","city":"Pune","area":"Kharadi","pg_type":"boys","rooms":[{"type":"sharing","monthly_price":9200},{"type":"single","monthly_price":14200}]},
+  {"id":"PUN005","name":"PG Finder Wakad Retreat","city":"Pune","area":"Wakad","pg_type":"girls","rooms":[{"type":"sharing","monthly_price":8500},{"type":"single","monthly_price":13200}]},
+  {"id":"HYD001","name":"PG Finder Gachibowli Hub","city":"Hyderabad","area":"Gachibowli","pg_type":"co-living","rooms":[{"type":"sharing","monthly_price":9300},{"type":"single","monthly_price":15500}]},
+  {"id":"HYD002","name":"PG Finder Kondapur Corner","city":"Hyderabad","area":"Kondapur","pg_type":"boys","rooms":[{"type":"sharing","monthly_price":8300},{"type":"single","monthly_price":14500}]},
+  {"id":"HYD003","name":"PG Finder Madhapur Bloom","city":"Hyderabad","area":"Madhapur","pg_type":"girls","rooms":[{"type":"sharing","monthly_price":10800},{"type":"single","monthly_price":16300}]},
+  {"id":"HYD004","name":"PG Finder Kukatpally Nest","city":"Hyderabad","area":"Kukatpally","pg_type":"boys","rooms":[{"type":"sharing","monthly_price":7200},{"type":"single","monthly_price":11800}]}
+]

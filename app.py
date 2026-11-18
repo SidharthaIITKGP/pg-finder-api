@@ -17,14 +17,15 @@ from pydantic import BaseModel, Field
 
 DATA_PATH = Path(__file__).with_name("properties.json")
 PROPERTIES = json.loads(DATA_PATH.read_text(encoding="utf-8"))
-app = FastAPI(title="PG Finder Inventory API", version="1.0.0")
+app = FastAPI(title="PG Finder Inventory API", version="1.1.0")
 
 
 class SearchRequest(BaseModel):
     city: str | None = Field(default=None, description="City requested by the caller")
     area: str | None = Field(default=None, description="Preferred locality")
     pg_type: str | None = Field(default=None, description="boys, girls or co-living")
-    max_budget: int | str | None = Field(default=None, description="Max monthly rent in INR, e.g. 12000 or '12k'")
+    min_budget: int | str | None = Field(default=None, description="Optional minimum monthly rent in INR; omit if no lower bound")
+    max_budget: int | str | None = Field(default=None, description="Optional maximum monthly rent in INR; omit if no upper bound")
     room_type: str | None = Field(default=None, description="single or sharing")
 
 
@@ -89,11 +90,33 @@ def search_inventory(query: SearchRequest) -> dict[str, Any]:
     area = canon_area(query.area)
     pg_type = canon_pg_type(query.pg_type)
     room_type = canon_room(query.room_type)
+    min_budget = budget_rupees(query.min_budget)
     max_budget = budget_rupees(query.max_budget)
+
+    # A missing budget means no price restriction, but a malformed supplied
+    # budget must not silently turn into an unrestricted search.
+    invalid_budget_fields = [
+        key for key, raw, parsed in (
+            ("min_budget", query.min_budget, min_budget),
+            ("max_budget", query.max_budget, max_budget),
+        )
+        if raw is not None and str(raw).strip() and parsed is None
+    ]
+    if invalid_budget_fields:
+        return {
+            "status": "invalid_budget", "match_count": 0, "matches": [],
+            "invalid_fields": invalid_budget_fields,
+            "message": "Invalid budget value. Clarify the amount in INR and search again.",
+        }
+    if min_budget is not None and max_budget is not None and min_budget > max_budget:
+        return {
+            "status": "invalid_budget_range", "match_count": 0, "matches": [],
+            "message": "Minimum budget is greater than maximum. Ask the caller to clarify.",
+        }
 
     missing = []
     for key, value in [("city", city), ("area", area), ("pg_type", pg_type),
-                       ("max_budget", max_budget), ("room_type", room_type)]:
+                       ("room_type", room_type)]:
         if not value:
             missing.append(key)
     if pg_type and pg_type not in {"boys", "girls", "co-living"}:
@@ -118,13 +141,18 @@ def search_inventory(query: SearchRequest) -> dict[str, Any]:
         if canon_area(property_["area"]) != area or property_["pg_type"] != pg_type:
             continue
         for room in property_["rooms"]:
-            if room["type"] == room_type and room["monthly_price"] <= max_budget:
-                matches.append({
-                    "id": property_["id"], "name": property_["name"],
-                    "city": property_["city"], "area": property_["area"],
-                    "pg_type": property_["pg_type"], "room_type": room["type"],
-                    "monthly_price_inr": room["monthly_price"],
-                })
+            if room["type"] != room_type:
+                continue
+            if min_budget is not None and room["monthly_price"] < min_budget:
+                continue
+            if max_budget is not None and room["monthly_price"] > max_budget:
+                continue
+            matches.append({
+                "id": property_["id"], "name": property_["name"],
+                "city": property_["city"], "area": property_["area"],
+                "pg_type": property_["pg_type"], "room_type": room["type"],
+                "monthly_price_inr": room["monthly_price"],
+            })
     matches.sort(key=lambda m: (m["monthly_price_inr"], m["name"]))
     shown = matches[:3]
     return {
@@ -132,7 +160,8 @@ def search_inventory(query: SearchRequest) -> dict[str, Any]:
         "match_count": len(matches),
         "matches": shown,
         "filters": {"city": query.city, "area": query.area, "pg_type": pg_type,
-                    "max_budget_inr": max_budget, "room_type": room_type},
+                    "min_budget_inr": min_budget, "max_budget_inr": max_budget,
+                    "room_type": room_type},
         "available_areas_in_city": available_areas if not shown else [],
         "message": (
             "Recommend only these returned properties. Prices are monthly and room availability is unverified."
@@ -159,8 +188,9 @@ def search_pgs(query: SearchRequest) -> dict[str, Any]:
 
 @app.get("/search_pgs")
 def search_pgs_get(city: str | None = None, area: str | None = None,
-                   pg_type: str | None = None, max_budget: str | None = None,
-                   room_type: str | None = None) -> dict[str, Any]:
+                   pg_type: str | None = None, min_budget: str | None = None,
+                   max_budget: str | None = None, room_type: str | None = None) -> dict[str, Any]:
     """Convenient browser testing; use POST for the actual CallKaro function."""
     return search_inventory(SearchRequest(city=city, area=area, pg_type=pg_type,
-                                          max_budget=max_budget, room_type=room_type))
+                                          min_budget=min_budget, max_budget=max_budget,
+                                          room_type=room_type))
